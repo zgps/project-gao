@@ -4,10 +4,10 @@
       <p>用户管理界面</p>
       <div class="container">
           <div class="left">
-
+              
           </div>
         <div class="right">
-          <el-table size="small" current-row-key="id"  stripe highlight-current-row>
+          <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
             <el-table-column type="index" align="center" label="序号"></el-table-column>
             <el-table-column prop="username" label="用户名" align="center"></el-table-column>
             <el-table-column label="性别" align="center">
