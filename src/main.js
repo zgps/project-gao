@@ -1,5 +1,7 @@
 import Vue from 'vue'
-import { Button,RadioGroup,Menu,Submenu,MenuItem, MenuItemGroup,RadioButton,Table,TableColumn} from 'element-ui';
+import { Button,RadioGroup,Menu,Submenu,MenuItem,
+   MenuItemGroup,RadioButton,Table,TableColumn,Pagination,} 
+   from 'element-ui';
 import App from './App.vue'
 import router from './router/router'
 import store from './store'
@@ -19,6 +21,7 @@ Vue.component(MenuItemGroup.name,MenuItemGroup);
 Vue.component(RadioButton.name,RadioButton);
 Vue.component(Table.name,Table);
 Vue.component(TableColumn.name,TableColumn);
+Vue.component(Pagination.name,Pagination);
 
 
 new Vue({

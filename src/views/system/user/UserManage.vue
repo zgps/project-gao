@@ -26,6 +26,8 @@
               </template>
             </el-table-column>
           </el-table>
+
+          <!-- <vv-pagination></vv-pagination> -->  
         </div>
       </div>
     </div>
@@ -33,7 +35,18 @@
 </template>
 <script>
 export default {
-  name: "UserManage"
+  name: "UserManage",
+  data() {
+      return {
+          dataList:[{
+              username:'',
+              birthday:'',
+              remark:'',
+              telephone:'',
+              station:''
+          }]
+      }
+  }
 };
 </script>
 <style lang="scss">
