@@ -8,7 +8,7 @@ const instance = axios.create({
 	timeout: SYSTEM.TIMEOUT,
 	headers: {
 		'X-Requested-With': 'XMLHttpRequest',
-		'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
 	}
 })
 
@@ -29,15 +29,16 @@ instance.interceptors.request.use(
 // 响应拦截
 instance.interceptors.response.use(
     function(response) {
-        console.log('http.js===========>', response);
         // TODO: 根据业务需求自行封装
-        // if(response.data.success) {
-        //     return response.data;
-        // } else if(response.data.errorCode == '10000') {
-        //     window.location.href = '/';
-        //     return response.data;
+        console.log('00000000000000000',response.data)
+        return response.data;
+        // if(response.data.flag) {
+           
+        // } else if(!response.data.flag) {
+        //     // window.location.href = '/';
+        //     // return response.data;
         // } else {
-        //     return Promise.reject(new Error(response.data.errmsg));
+        //     return Promise.reject(new Error(response.data));
         // }
     },
     function(error) {

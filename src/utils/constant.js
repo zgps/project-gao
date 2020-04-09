@@ -1,7 +1,7 @@
 export const SYSTEM = {
     BASE_URL: '/',
     PREFIX_API_URL: '/api',
-    TIMEOUT: 2000,
+    // TIMEOUT: 0,
 };
 
 export const validator = {

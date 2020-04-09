@@ -1,5 +1,12 @@
 import Vue from 'vue'
 import vueRouter from 'vue-router'
+const routerPush = vueRouter.prototype.push
+
+//重写vueRouter解决点击相同导航问题
+vueRouter.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error => error)
+}
+
 Vue.use(vueRouter)
 
 const App = () => import('../App.vue')

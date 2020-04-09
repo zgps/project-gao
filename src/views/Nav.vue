@@ -86,7 +86,8 @@ export default {
 }
 </script>
 <style lang="scss">
-    .slideBar {
-        width:300px;
-    }
+@import "../scss/common";
+    // .slideBar {
+    //     width:300px;
+    // }
 </style>

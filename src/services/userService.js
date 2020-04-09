@@ -11,4 +11,34 @@ export default {
             }
         })
     },
+    handDelete: (obj = {})=> {
+        return $http.ajax({
+            url: '/user/findById',
+            method:'get',
+            data:{
+                id:obj.id
+                
+            }
+        })
+    },
+    getDept:(obj = {}) => {
+        return $http.ajax({
+            url: '/dept/treeSelect',
+            method:'get',
+            data:{
+                // id:obj.id
+                
+            }
+        })
+    },
+    findPage:(obj = {}) => {
+        return $http.ajax({
+            url: '/user/findPage',
+            method:'post',
+            data:obj
+        })
+    },
+
+
+
 }

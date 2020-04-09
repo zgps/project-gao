@@ -2,8 +2,26 @@
 @import "views/common/_reset";
 
 
-.changeTab {
+.fl {
+    float:left;
+}
+.fr {
+    float: right;
+}
+$nav-width:300px;// 导航宽度
+$tree-model-width:300px; //路由页面里的tree宽度
+.slideBar {
+    width:$nav-width;
+}
+.router-view {
     position: absolute;
     top:50px;
-    left:350px;
+    left:$nav-width;
+    width: calc(100% - #{$nav-width})
+}
+.treeModel {
+    width:$tree-model-width;
+}
+.tableModel {
+    width: calc(100% - #{$tree-model-width})
 }
