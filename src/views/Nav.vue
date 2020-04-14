@@ -1,93 +1,148 @@
 <template>
   <div>
-    <p>这是导航页面</p>
-    <header></header>
-    <div class='slideBar'>
-      <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-        <el-radio-button :label="false">展开</el-radio-button>
-        <el-radio-button :label="true">收起</el-radio-button>
-      </el-radio-group>
-      <el-menu
-        default-active="1-4-1"
-        class="el-menu-vertical-demo"
-        @open="handleOpen"
-        @close="handleClose"
-        :collapse="isCollapse"
-      >
+    <vv-header></vv-header>
+    <div class="slideBar">
+      <!-- 菜单部分 -->
 
-      <!-- 一个完整的下拉列表 -->
-        <!-- <el-submenu index="1">
-          <template slot="title">
-            <i class="el-icon-location"></i>
-            <span slot="title">信息查询</span>
-          </template>
-          <el-menu-item-group>
-            <span slot="title">分组一</span>
-            <el-menu-item index="1-1">选项1</el-menu-item>
-            <el-menu-item index="1-2">选项2</el-menu-item>
-          </el-menu-item-group>
-          <el-menu-item-group title="分组2">
-            <el-menu-item index="1-3">选项3</el-menu-item>
-          </el-menu-item-group>
-          <el-submenu index="1-4">
-            <span slot="title">选项4</span>
-            <el-menu-item index="1-4-1">选项1</el-menu-item>
+      <el-aside :class='isCollapse?"width64":"width200"'>
+        <transition>
+          <img
+            v-if="isCollapse"
+            src="../assets/images/cd-l.png"
+            @click="isCollapse= !isCollapse"
+            style="width:32px;height:32px"
+          />
+          <img
+            v-else
+            src="../assets/images/cd-r.png"
+            @click="isCollapse= !isCollapse"
+            style="width:32px;height:32px"
+          />
+        </transition>
+        <el-menu
+          default-active="menu.path"
+          class="el-menu-vertical-demo"
+          @open="handleOpen"
+          @close="handleClose"
+          :collapse="isCollapse"
+        >
+          <el-submenu v-for="(menu) in menuList" :key="menu.name" :index="menu.path">
+            <template slot="title">
+              <i class="fa" :class="menu.icon"></i>
+              <span slot="title">{{menu.name}}</span>
+            </template>
+            <template v-for="(child) in menu.children">
+              <el-menu-item :index="child.path" :key="child.name" v-go="`/nav/${child.linkUrl}`">{{child.name}}</el-menu-item>
+            </template>
           </el-submenu>
-        </el-submenu> -->
-
-         <el-submenu index="1">
-          <template slot="title">
-            <i class="el-icon-location"></i>
-            <span slot="title">系统设置</span>
-          </template>
-          <el-menu-item-group>
-            <!-- <span slot="title">分组一</span> -->
-            <el-menu-item index="1-1" v-go="'/nav/userManage'">用户管理</el-menu-item>
-            <el-menu-item index="1-2" v-go="'/nav/role'">角色管理</el-menu-item>
-            <el-menu-item index="1-3" v-go="'/nav/auth'">权限管理</el-menu-item>
-            <el-menu-item index="1-4">菜单管理</el-menu-item>
-            <el-menu-item index="1-4">部门管理</el-menu-item>
-            <el-menu-item index="1-4">修改密码</el-menu-item>
-            <el-menu-item index="1-4">派工规则</el-menu-item>
-            <el-menu-item index="1-4">工单配置</el-menu-item>
-          </el-menu-item-group>
-          
-        </el-submenu>
-       
-        <!-- <el-menu-item index="3" >
-          <i class="el-icon-document"></i>
-          <span slot="title">数据中心</span>
-        </el-menu-item>
-        <el-menu-item index="4">
-          <i class="el-icon-setting"></i>
-          <span slot="title">系统设置</span>
-        </el-menu-item> -->
-      </el-menu>
+        </el-menu>
+      </el-aside>
     </div>
-    <router-view></router-view>
+    <el-container style="margin-right:20px;" :class="isCollapse?'left-cont':'stretch-left-cont'">
+      <el-main>
+        <div class="router-view">
+          <router-view></router-view>
+        </div>
+      </el-main>
+    </el-container>
   </div>
 </template>
 <script>
+import userService from "@/services/userService";
 export default {
-    name: 'Nav',
-    data() {
-        return {
-            isCollapse: true
-        }
+  name: "Nav",
+  data() {
+    return {
+      // username: "",
+      menuList: [],
+      isCollapse: true
+      // fullscreen: false,
+
+      // tableData: [
+      //   {
+      //     id: 1,
+      //     date: "2019-12-01 09:10",
+      //     name: "接近响应截至时间",
+      //     remarks: "接近响应截至时间，请尽快处理工单，如已经处理请忽略此条消息",
+      //     children: [
+      //       {
+      //         id: 31,
+      //         date: "2016-05-01 09:10",
+      //         name: "接近响应截至时间2",
+      //         remarks:
+      //           "接近响应截至时间，请尽快处理工单，如已经处理请忽略此条消息"
+      //       },
+      //       {
+      //         id: 32,
+      //         date: "2016-05-01 09:10",
+      //         name: "接近响应截至时间3",
+      //         remarks:
+      //           "接近响应截至时间，请尽快处理工单，如已经处理请忽略此条消息"
+      //       }
+      //     ]
+      //   },
+      //   {
+      //     id: 2,
+      //     date: "2019-12-02 09:15",
+      //     name: "有新分配工单",
+      //     remarks: "有N张新分配工单给您，请尽快到个人任务池处理"
+      //   },
+      //   {
+      //     id: 3,
+      //     date: "2019-12-03 12:12",
+      //     name: "工单XXXXXXXX已催办，请尽快处理",
+      //     remarks: "工单XXXXXXXX已催办，请尽快处理"
+      //   }
+      // ]
+    };
+  },
+  created() {
+    this.getAuthName();
+    this.getMenuList();
+    // axios.get("/user/getUserName").then(res => {
+    //   this.username = res.data.data;
+
+    //   // 发送请求获取侧边栏菜单
+    //   axios.get("/menu/getMenuList?username=" + this.username).then(res => {
+    //     this.menuList = res.data.data;
+    //   });
+    // });
+  },
+  methods: {
+    //获取数据
+    getAuthName() {
+      userService.getAuthName().then(data => {});
     },
-    methods:{
-        handleOpen(key, keyPath) {
-        console.log(key, keyPath);
-      },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
-    }
-}
-}
+    getMenuList() {
+      let un = "admin";
+      userService.getMenuList(un).then(data => {
+        this.menuList = data.data;
+        console.log("mememem00000" + this.menuList);
+      });
+    },
+    handleOpen(key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleClose(key, keyPath) {
+      console.log(key, keyPath);
+    },
+
+    
+  }
+};
 </script>
 <style lang="scss">
 @import "../scss/common";
-    // .slideBar {
-    //     width:300px;
-    // }
+.width64 {
+  height: calc(100vh - 70px);
+  width:64px !important;
+  transition:all 0.5s;
+  overflow: hidden;
+}
+.width200 {
+  height: calc(100vh - 70px);
+  width:200px !important;
+  overflow: hidden;
+  transition:all 0.5s;
+}
 </style>

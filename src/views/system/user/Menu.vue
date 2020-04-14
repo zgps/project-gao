@@ -1,0 +1,415 @@
+<template>
+  <div>
+      <div class="title">
+      <span>系统设置</span>
+      <span>/菜单管理</span>
+    </div>
+    <div class="app-container">
+      <div class="box">
+        <el-form :inline="true">
+          <el-form-item label="菜单名称">
+            <el-input v-model="queryParams.name" placeholder="请输入菜单名称" clearable size="small" />
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-select v-model="queryParams.visible" placeholder="菜单状态" clearable size="small">
+              <el-option label="显示" value="0"></el-option>
+              <el-option label="隐藏" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+            <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+          </el-form-item>
+        </el-form>
+
+        <el-table
+          v-loading="loading"
+          :data="menuList"
+          row-key="id"
+          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        >
+          <el-table-column prop="name" label="菜单名称" :show-overflow-tooltip="true" width="130px"></el-table-column>
+          <el-table-column prop="icon" label="图标" align="center" width="100px">
+            <template slot-scope="scope">
+              <i class="fa" :class="scope.row.icon" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="priority" label="排序" width="60px"></el-table-column>
+          <el-table-column prop="perms" label="权限标识" width="130px" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column label="可见" width="80px">
+            <template slot-scope="scope">
+              <span>{{ scope.row.visible == '0' ? '显示' : scope.row.visible == '1' ? '隐藏' : '未知'}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+            <template slot-scope="scope">
+              <span>{{scope.row.createTime}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            align="center"
+            width="180"
+            class-name="small-padding fixed-width"
+          >
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(scope.row)"
+              >修改</el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-plus"
+                @click="handleAdd(scope.row)"
+              >新增</el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 添加或修改菜单对话框 -->
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-row>
+              <el-col :span="24">
+                <el-form-item label="上级菜单" prop="parentmenuid">
+                  <treeselect
+                    v-model="form.parentmenuid"
+                    :options="menuOptions"
+                    :show-count="true"
+                    placeholder="选择上级菜单"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="菜单类型" prop="menuType">
+                  <el-radio-group v-model="form.menuType">
+                    <el-radio label="M">目录</el-radio>
+                    <el-radio label="C">菜单</el-radio>
+                    <el-radio label="F">按钮</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item v-if="form.menuType != 'F'" label="菜单图标">
+                  <el-input v-model="form.icon" placeholder="请输入图标名称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="菜单名称" prop="name">
+                  <el-input v-model="form.name" placeholder="请输入菜单名称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="显示排序" prop="priority">
+                  <el-input-number v-model="form.priority" controls-position="right" :min="0" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="form.menuType != 'F'" label="路由地址" prop="linkUrl">
+                  <el-input v-model="form.linkUrl" placeholder="请输入路由地址" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item v-if="form.menuType != 'M'" label="权限标识">
+                  <el-input v-model="form.perms" placeholder="请权限标识" maxlength="50" />
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="24">
+                <el-form-item v-if="form.menuType != 'F'" label="菜单状态">
+                  <el-radio v-model="form.visible" label="0">正常</el-radio>
+                  <el-radio v-model="form.visible" label="1">隐藏</el-radio>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  name: "menu",
+  data() {
+    return {
+      // 遮罩层
+      loading: true,
+      // 菜单表格树数据
+      menuList: [],
+      // 菜单树选项
+      menuOptions: [],
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
+      // 菜单状态数据字典
+      visibleOptions: [],
+      // 查询参数
+      queryParams: {
+        name: undefined,
+        visible: undefined
+      },
+      // 表单参数
+      form: {},
+      // 表单校验
+      rules: {
+        parentmenuid: [
+          { required: true, message: "上级菜单不能为空", trigger: "blur" }
+        ],
+        name: [
+          { required: true, message: "菜单名称不能为空", trigger: "blur" }
+        ],
+        priority: [
+          { required: true, message: "菜单顺序不能为空", trigger: "blur" }
+        ]
+      }
+    };
+  },
+  create() {
+    this.getList();
+  },
+  method: {
+    // 选择图标
+    selected(name) {
+      this.form.icon = name;
+    },
+    /** 查询菜单列表 */
+    getList() {
+      this.loading = true;
+      // axios.get("/menu/getAll").then(response => {
+      //     this.menuList = response.data.data;
+      //     this.loading = false;
+      // });
+    },
+
+    /*// 添加子菜单弹框
+            handleAdd(node,data) {
+                // console.log(data.id);
+                // 清空表单
+                this.formData = {};
+                // 将父菜单id给formData
+                this.formData.parentMenuId = data.id;
+                // 显示添加弹层
+                this.dialog4AddVisible = true;
+            },
+            // 添加二级菜单
+            addFirst(){
+                // 清空表单
+                this.formData = {};
+                // 显示添加弹层
+                this.dialog4AddVisible = true;
+            },
+            // 编辑弹框
+            handleUpdate(node,data){
+              // 回显数据
+              axios.get("/menu/findMenuById?id=" + data.id).then((res)=>{
+                  console.log(res.data.data);
+                  this.formData = res.data.data;
+                  this.dialog4UpdateVisible = true;
+              })
+            },
+            // 添加菜单
+            add(){
+                /!*
+                 *          const newChild = { id: id++, label: 'testtest', children: [] };
+                            if (!data.children) {
+                              this.$set(data, 'children', []);
+                            }
+                            data.children.push(newChild);
+                * *!/
+                console.log(this.formData);
+                // 发送ajax请求将数据发送到后台
+                axios.post("/menu/add",this.formData).then((res)=>{
+                    // 隐藏弹框
+                    this.dialog4AddVisible = false;
+                    if (res.data.flag){
+                        // 添加成功
+                        this.$message.success(res.data.message);
+                        // 刷新页面
+                        this.findMenu();
+                    } else {
+                        // 添加失败
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            // 编辑
+            update(){
+                // 发送ajax请求将数据发送到后台
+                axios.post("/menu/update",this.formData).then((res)=>{
+                    // 隐藏弹框
+                    this.dialog4UpdateVisible = false;
+                    if (res.data.flag){
+                        // 编辑成功
+                        this.$message.success(res.data.message);
+                        // 刷新页面
+                        this.findMenu();
+                    } else {
+                        // 编辑失败
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },
+            // 刷新页面
+            findMenu(){
+                // 发送ajax请求获取菜单数据
+                axios.get("/menu/getAll").then((res)=>{
+                    console.log(res.data.data);
+                    // 将数据赋值给menudata
+                    this.menudata = res.data.data;
+                })
+            },
+            // 删除
+            remove(node, data) {
+                // 发送ajax请求删除数据
+                axios.get("/menu/remove?id=" + data.id).then((res)=>{
+                    if (res.data.flag){
+                        // 删除成功
+                        this.$message.success(res.data.message);
+                        // 刷新页面
+                        this.findMenu();
+                    } else {
+                        // 删除失败
+                        this.$message.error(res.data.message);
+                    }
+                })
+            },*/
+    /** 查询菜单下拉树结构 */
+    getTreeselect() {
+      // axios.get("/menu/treeSelect").then(response => {
+      //     this.menuOptions = [];
+      //     const menu = { id: 0, label: '顶级菜单', children: [] };
+      //     menu.children = response.data.data;
+      //     this.menuOptions.push(menu);
+      // });
+    },
+    /*        // 菜单显示状态字典翻译
+        visibleFormat(row, column) {
+            if (row.menuType == "F") {
+                return "";
+            }
+            return this.selectDictLabel(this.visibleOptions, row.visible);
+        },*/
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+        id: undefined,
+        parentmenuid: 0,
+        name: undefined,
+        icon: undefined,
+        menuType: "M",
+        priority: undefined,
+        isFrame: "1",
+        visible: "0"
+      };
+      // this.resetForm("form");
+    },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      // this.getList();
+      // axios.post("/menu/queryList",this.queryParams).then(response => {
+      //     this.menuList = response.data.data;
+      //     this.loading = false;
+      // });
+    },
+    /** 新增按钮操作 */
+    handleAdd(row) {
+      this.reset();
+      this.getTreeselect();
+      if (row != null) {
+        this.form.parentmenuid = row.id;
+      }
+      this.open = true;
+      this.title = "添加菜单";
+    },
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      this.getTreeselect();
+      // axios.get("/menu/findMenuById?id="+row.id).then(response => {
+      //     this.form = response.data.data;
+      //     this.open = true;
+      //     this.title = "修改菜单";
+      // });
+    },
+    /** 提交按钮 */
+    submitForm: function() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.id != undefined) {
+            // axios.put("/menu",this.form).then(response => {
+            //     if (response.data.flag) {
+            //         this.$message({
+            //             message:response.data.message,
+            //             type:'success'
+            //         });
+            //         this.open = false;
+            //         this.getList();
+            //     } else {
+            //         this.$message.error("获取数据失败,请刷新当前页面");
+            //     }
+            // });
+          } else {
+            // axios.post("/menu/addMenu",this.form).then(response => {
+            //     if (response.data.flag) {
+            //         this.$message({
+            //             message:response.data.message,
+            //             type:'success'
+            //         });
+            //         this.open = false;
+            //         this.getList();
+            //     } else {
+            //         this.$message.error("获取数据失败,请刷新当前页面");
+            //     }
+            // });
+          }
+        }
+      });
+    },
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      this.$confirm('是否确认删除名称为"' + row.name + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(function() {
+          // return axios.post("/menu/remove?id="+row.id);
+        })
+        .then(response => {
+          this.getList();
+          if (response.data.flag) {
+            this.$message({
+              message: response.data.message,
+              type: "success"
+            });
+          } else {
+            this.$message.error(response.data.message);
+          }
+        })
+        .catch(function() {});
+    }
+  }
+};
+</script>
+<style lang="scss">
+</style>

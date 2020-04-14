@@ -3,25 +3,94 @@
 
 
 .fl {
-    float:left;
+    float: left;
 }
+
 .fr {
     float: right;
 }
-$nav-width:300px;// 导航宽度
+
+$nav-width:300px; // 导航宽度
 $tree-model-width:300px; //路由页面里的tree宽度
+
 .slideBar {
-    width:$nav-width;
+    // width: $nav-width;
+    background-color: #fff;
+    height: 100%;
+    float: left;
+    margin-right:20px;
+    .el-radio-button {
+        // position:absolute;
+    }
 }
+
 .router-view {
-    position: absolute;
-    top:50px;
-    left:$nav-width;
-    width: calc(100% - #{$nav-width})
+    background-color: #fff;
+    height: calc(100vh - 70px);
+    // position: absolute;
+    // top: 70px;
+    // left: $nav-width;
+    // width: calc(100% - 300px - 20px - 20px);
+    // margin-left: 20px;
+    .treeModel {
+        width: $tree-model-width;
+    }
+    
+    .tableModel {
+        width: calc(100% - #{$tree-model-width})
+    }
+    
+    .routerCon {
+        margin: 20px 0 0 20px;
+    }
+
+    .title {
+        height: 60px;
+        line-height: 60px;
+        background: #eee;
+        border-bottom: 3px solid #3c8dbc;
+    
+        span:nth-child(1) {
+            font-size: 26px;
+            font-weight: 400;
+        }
+    
+    }
+
 }
-.treeModel {
-    width:$tree-model-width;
+
+
+
+// 分页
+.pagiantion {
+    padding: 15px;
+    text-align: right;
 }
-.tableModel {
-    width: calc(100% - #{$tree-model-width})
+
+
+
+//改写element-ui
+.treeSelect {
+    input {
+        height: 40px !important;
+        width: 265px;
+    }
 }
+
+.el-button {
+    margin-left: 20px !important;
+}
+
+
+
+// .el-menu-vertical-demo:not(.el-menu--collapse) {
+//     width:200px;
+// }
+.el-main {
+    padding:0 !important;
+}
+
+.app-container {
+    padding:20px;
+}
+

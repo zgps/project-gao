@@ -14,9 +14,32 @@ export default {
   created() {},
   methods: {
     login() {
-      userService.login().then(
+      // let menuList = [
+      //   "UCPPage",
+      //   "dist/hello.html",
+      //   "xx1",
+      //   "xxOrderPage",
+      //   "xx002",
+      //   "userPage",
+      //   "rolePage",
+      //   "permissionPage"
+      // ];
+      // this.$store.dispatch("doMenu", menuList);
+      // sessionStorage.setItem('test', 1213)
+      // this.$router.push({ name: "nav" });
+      let userMsg = {
+        userName:'admin',
+        password:'123123'
+      }
+      userService.login(userMsg).then(
         data => {
-          console.log("000");
+          if (data.data) {
+            userService.getMenuList(data.data).then(data => {
+              let menuList = data.data;
+              this.$dispatch("doMenu", menuList);
+               this.$router.push({ name: "nav" });
+            });
+          }
         },
         err => {
           this.$router.push({ name: "nav" });
