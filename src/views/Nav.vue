@@ -117,7 +117,6 @@ export default {
       let un = "admin";
       userService.getMenuList(un).then(data => {
         this.menuList = data.data;
-        console.log("mememem00000" + this.menuList);
       });
     },
     handleOpen(key, keyPath) {

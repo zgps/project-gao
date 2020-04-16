@@ -30,7 +30,6 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     function(response) {
         // TODO: 根据业务需求自行封装
-        console.log('00000000000000000',response.data)
         return response.data;
         // if(response.data.flag) {
            

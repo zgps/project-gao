@@ -1,8 +1,9 @@
 <template>
   <div>
-      <div class="title">
-        <span>系统设置</span><span>/角色管理</span>
-      </div>
+    <div class="title">
+      <span>系统设置</span>
+      <span>/角色管理</span>
+    </div>
     <div class="app-container">
       <div class="box">
         <div class="filter-container">
@@ -231,79 +232,21 @@ export default {
   },
   created() {
     this.findPage();
+    this.getMenu();
+    this.getPomission();
   },
   methods: {
-    showMessage(error) {
-      if (error.response.status == 403) {
-        // 权限不足
-        this.$message.error("无权限访问");
-        return;
-      } else {
-        this.$message.error("未知错误");
-        return;
-      }
+    //TODO: 已改写
+    // 获取数据
+    getMenu() {
+      userService.getMenu("/menu/treeSelect").then(res => {
+        this.menudata = res.data;
+      });
     },
-    //取消弹出窗口，同时刷新子页面
-    exit() {
-      this.dialogFormVisible4Edit = false;
-      location.reload();
-    },
-    //编辑
-    handleEdit() {
-      this.formData.menuIds = this.$refs.tree.getCheckedKeys();
-      this.formData.permissionIds = this.permissionIds;
-
-      //  axios.post("/role/edit",this.formData).then((response)=>{
-      //      // 隐藏编辑窗口
-      //      this.dialogFormVisible4Edit = false;
-      //      if (response.data.flag){
-      //          // 编辑成功，弹出成功提示信息
-      //          this.$message({
-      //              message:response.data.message,
-      //              type:'success'
-      //          });
-      //      } else {
-      //          // 编辑失败，弹出错误提示
-      //          this.$message.error(response.data.message);
-      //      }
-      //  }).finally(()=>{
-      //      // 重新发送请求查询分页数据
-      //      this.findPage();
-      //  });
-    },
-    //添加
-    handleAdd() {
-      // 发送ajax请求将表单数据提交到后台
-      this.formData.menuIds = this.$refs.tree.getCheckedKeys();
-      this.formData.permissionIds = this.permissionIds;
-
-      // axios.post("/permission/add",this.formData).then((response) => {
-      //     this.dialogFormVisible = false;
-      //     if (response.data.flag) {
-      //         this.$message({
-      //             message:response.data.message,
-      //             type:'success'
-      //         });
-      //     } else {
-      //         this.$message.error(response.data.message);
-      //     }
-      // });
-
-      //  axios.post("/role/add",this.formData).then((response) => {
-      //      // 隐藏新增窗口
-      //      this.dialogFormVisible = false;
-      //      // 判断后台返回的flag值，true表示添加操作成功，false为添加操作失败
-      //      if (response.data.flag) {
-      //          this.$message({
-      //              message:response.data.message,
-      //              type:'success'
-      //          });
-      //      } else {
-      //          this.$message.error(response.data.message);
-      //      }
-      //  }).finally(() => {
-      //      this.findPage();
-      //  });
+    getPomission() {
+      userService.getPomission("/permission/findAll").then(res => {
+        this.tableData = res.data;
+      });
     },
 
     //分页查询
@@ -314,13 +257,17 @@ export default {
         pageSize: this.pagination.pageSize, // 每页显示的记录数
         queryString: this.pagination.queryString // 查询条件
       };
-      // 请求后台
-      // axios.post("/role/findPage",param).then((response)=> {
-      //     // 为模型数据赋值，基于VUE的双向绑定展示到页面
-      //     this.dataList = response.data.rows;
-      //     this.pagination.total = response.data.total;
-      // });
+      userService.findPage("/role/findPage", param).then(
+        data => {
+          this.dataList = data.rows;
+          this.pagination.total = data.total;
+        },
+        err => {
+          this.$message.warning("当前查询无用户信息");
+        }
+      );
     },
+
     // 重置表单
     resetForm() {
       this.formData = {};
@@ -328,60 +275,77 @@ export default {
       this.permissionIds = [];
       this.menuIds = [];
     },
+
+    showMessage(error) {
+      if (error.response.status == 403) {
+        // 权限不足
+        this.$message.error("无权限访问");
+        return;
+      } else {
+        this.$message.error("未知错误");
+        return;
+      }
+    },
+
+    //取消弹出窗口，同时刷新子页面
+    exit() {
+      this.dialogFormVisible4Edit = false;
+      // location.reload();
+    },
+
+    //添加
+    handleAdd() {
+      // 发送ajax请求将表单数据提交到后台
+      this.formData.menuIds = this.$refs.tree.getCheckedKeys();
+      this.formData.permissionIds = this.permissionIds;
+      userService
+        .handAdd("/permission/add", this.formData)
+        .then(
+          res => {
+            this.dialogFormVisible = false;
+            if (res.flag) {
+              this.$message({
+                message: res.message,
+                type: "success"
+              });
+              // this.$message.success(res.message);
+            } else {
+              this.$message.error(res.message);
+            }
+          },
+          err => {}
+        )
+        .finally(() => {
+          this.findPage();
+        });
+
+      userService
+        .handAdd("/role/add", this.formData)
+        .then(
+          res => {
+            // 隐藏新增窗口
+            this.dialogFormVisible = false;
+            // 判断后台返回的flag值，true表示添加操作成功，false为添加操作失败
+            if (res.flag) {
+              this.$message({
+                message: res.message,
+                type: "success"
+              });
+            } else {
+              this.$message.error(res.message);
+            }
+          },
+          err => {}
+        )
+        .finally(() => {
+          this.findPage();
+        });
+    },
+
     // 弹出添加窗口
     handleCreate() {
       this.resetForm();
       this.dialogFormVisible = true;
-      // axios.get("/menu/treeSelect").then((res)=>{
-      //     this.menudata = res.data.data;
-      // });
-      // axios.get("/permission/findAll").then((res)=>{
-      //     this.tableData = res.data.data;
-      // })
-    },
-    // 弹出编辑窗口
-    handleUpdate(row) {
-      this.resetForm();
-      // alert(row);
-      this.permissionIds = [];
-      this.menuIds = [];
-      // 发送ajax请求根据id查询角色信息，用于基本信息回显
-      // axios.get("/role/findById?id=" + row.id).then((res)=> {
-      //     if (res.data.flag) {
-      //         // 弹出编辑窗口
-      //         this.dialogFormVisible4Edit = true;
-      //         // 默认选中第一个标签页
-      //         this.activeName = 'first';
-      //         // 为模型数据赋值，通过VUE数据双向绑定进行信息的回显
-      //         this.formData = res.data.data;
-
-      //         // 发送ajax请求查询所有的菜单项信息，用于展示
-      //         axios.get("/menu/treeSelect").then((res) => {
-      //             if (res.data.flag) {
-      //                 // 为模型数据赋值,通过vue数据双向绑定进行数据回显
-      //                 this.menudata = res.data.data;
-      //                 //查询当前组包含的所有项id, 用于页面回显
-      //                 axios.get("/role/findMenuIdsByRoleId?id=" + row.id).then((res) => {
-      //                     //为模型数据进行赋值,通过vue数据双向绑定进行信息的回显
-      //                     this.$refs.tree.setCheckedKeys(res.data);
-      //                 })
-      //             } else {
-      //                 this.$message.error(res.data.message);
-      //             }
-      //         });
-
-      //         axios.get("/permission/findAll").then((res) => {
-      //             if (res.data.flag) {
-      //                 this.tableData = res.data.data;
-      //                 axios.get("/role/findPermissionIdsByRoleId?id=" + row.id).then((res) => {
-      //                     this.permissionIds = res.data;
-      //                 })
-      //             } else {
-      //                 this.$message.error("获取数据失败，请刷新当前页面");
-      //             }
-      //         });
-      //     }
-      // })
     },
     //切换页码
     handleCurrentChange(currentPage) {
@@ -389,36 +353,101 @@ export default {
       this.pagination.currentPage = currentPage;
       this.findPage();
     },
+
     // 删除
     handleDelete(row) {
       this.$confirm("确认删除吗？", "提示", { type: "warning" })
         .then(() => {
           // 点击确定按钮时只需此处代码
-          // alert('用户点击的是确定按钮');
-          // axios.get("/role/delete?id=" + row.id).then((res)=>{
-          //     if (!res.data.flag){
-          //         // 删除失败
-          //         this.$message.error(res.data.message);
-          //     } else {
-          //         // 删除成功
-          //         this.$message({
-          //             message:res.data.message,
-          //             type:'success'
-          //         });
-          //         // 调用分页，获取最新分页数据
-          //         this.findPage();
-          //     }
-          // }).catch((error)=>{
-          //     console.log(error.response.status);
-          //     this.showMessage(error);
-          // });
+
+          userService
+            ._delete("/role/delete", { id: row.id })
+            .then(res => {
+              if (!res.flag) {
+                // 删除失败
+                this.$message.error(res.message);
+              } else {
+                // 删除成功
+                this.$message({
+                  message: res.message,
+                  type: "success"
+                });
+                // 调用分页，获取最新分页数据
+                this.findPage();
+              }
+            })
+            .catch(error => {
+              this.showMessage(error);
+            });
         })
         .catch(() => {
           // 点击取消按钮执行此代码
           this.$message("操作已取消");
         });
+    },
+
+    // 弹出编辑窗口
+    handleUpdate(row) {
+      this.resetForm();
+      this.permissionIds = [];
+      this.menuIds = [];
+      userService._edit("/role/findById", { id: row.id }).then(res => {
+        if (res.flag) {
+          // 弹出编辑窗口
+          this.dialogFormVisible4Edit = true;
+          // 默认选中第一个标签页
+          this.activeName = "first";
+          // 为模型数据赋值，通过VUE数据双向绑定进行信息的回显
+          this.formData = res.data;
+          // this.getMenu();
+
+          if (this.menudata.length) {
+            userService
+              .getById("/role/findMenuIdsByRoleId", { id: row.id })
+              .then(res => {
+                this.$refs.tree.setCheckedKeys(res);
+              });
+          } else {
+            this.$message.error(res.message);
+          }
+
+          if (this.tableData.length) {
+            userService
+              .getById("/role/findPermissionIdsByRoleId", { id: row.id })
+              .then(res => {
+                this.permissionIds = res;
+              });
+          } else {
+            this.$message.error("获取数据失败，请刷新当前页面");
+          }
+
+    
+        }
+      });
+    },
+    //编辑
+    handleEdit() {
+      this.formData.menuIds = this.$refs.tree.getCheckedKeys();
+      this.formData.permissionIds = this.permissionIds;
+      userService._edit1('/role/edit',this.formData).then(res => {
+             this.dialogFormVisible4Edit = false;
+           if (res.flag){
+               // 编辑成功，弹出成功提示信息
+               this.$message({
+                   message:res.data.message,
+                   type:'success'
+               });
+           } else {
+               // 编辑失败，弹出错误提示
+               this.$message.error(res.message);
+           }
+      }).finally(()=>{
+        this.findPage();
+      })
     }
   }
+
+  //TODO: 已改写  --  end
 };
 </script>
 

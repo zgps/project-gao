@@ -365,7 +365,53 @@ export default {
     fuzzyDept() {
       userService.getDept().then(data => {
         this.deptOptions = data.data;
+        console.log(data)
+        if(data.flag) {
+          this.tableDept = data.data;
+        } else {
+          this.$message.error(data.message)
+        }
       });
+    },
+    //获取role
+    getRole() {
+      userService.getRole().then(data => {
+        if (data.flag) {
+          this.tableData = data.data
+        } else {
+          this.$message.error(data.message);
+        }
+        
+      })
+    },
+    // 弹出添加窗口
+    handleCreate() {
+      this.dialogFormVisible = true;
+      this.resetForm();
+      //默认切换到第一个标签页
+      this.activeName = "first";
+      //重置
+      this.roleIds = [];
+      this.deptIds = [];
+      //发送axios请求查询所有检查项信息
+      // axios.get("/role/findAll").then((res) => {
+      //     if (res.data.flag) {
+      //         //成功就将检查项列表数据赋值给模型数据用于页面表格展示
+      //         this.tableData = res.data.data;
+      //     } else {
+      //         this.$message.error(res.data.message);
+      //     }
+      // });
+      this.getRole();
+      this.fuzzyDept();
+      //发送ajax请求查询所有的部门信息,用于查询项表格展示
+      // axios.get("dept/treeSelect").then((res) => {
+      //     if (res.data.flag) {
+      //         this.tableDept = res.data.data;
+      //     } else {
+      //         this.$message.error(res.data.message);
+      //     }
+      // });
     },
     //分页查询
     findPage() {
@@ -376,7 +422,7 @@ export default {
         username: this.queryParams.username,
         deptid: this.queryParams.deptid
       };
-      userService.findPage(Params).then(
+      userService.findPage('/user/findPage',Params).then(
         data => {
           console.log(data);
           this.dataList = data.rows;
@@ -406,7 +452,7 @@ export default {
       };
 
       userService
-        .handAdd(addParam)
+        .handAdd('/user/add',addParam)
         .then(
           res => {
             //关闭新增窗口
@@ -459,41 +505,17 @@ export default {
           this.findPage();
         });
     },
-    //gaoshang end
-
-    //添加
-
     // 重置表单
     resetForm() {
       this.formData = {};
     },
-    // 弹出添加窗口
-    handleCreate() {
-      this.dialogFormVisible = true;
-      this.resetForm();
-      //默认切换到第一个标签页
-      this.activeName = "first";
-      //重置
-      this.roleIds = [];
-      this.deptIds = [];
-      //发送axios请求查询所有检查项信息
-      // axios.get("/role/findAll").then((res) => {
-      //     if (res.data.flag) {
-      //         //成功就将检查项列表数据赋值给模型数据用于页面表格展示
-      //         this.tableData = res.data.data;
-      //     } else {
-      //         this.$message.error(res.data.message);
-      //     }
-      // });
-      //发送ajax请求查询所有的部门信息,用于查询项表格展示
-      // axios.get("dept/treeSelect").then((res) => {
-      //     if (res.data.flag) {
-      //         this.tableDept = res.data.data;
-      //     } else {
-      //         this.$message.error(res.data.message);
-      //     }
-      // });
-    },
+    //gaoshang end
+
+    //添加
+
+
+    
+    
     // 弹出编辑窗口
     handleUpdate(row) {
       //重置
@@ -587,4 +609,25 @@ export default {
 </script>
 <style lang="scss">
 @import "../../../scss/common";
+.datatable {
+                position: relative;
+                box-sizing: border-box;
+                -webkit-box-flex: 1;
+                width: 100%;
+                max-width: 100%;
+                font-size: 14px;
+                color: rgb(96, 98, 102);
+                overflow: hidden;
+                flex: 1 1 0%;
+            }
+            .datatable td, .datatable th {
+                padding: 12px 0;
+                min-width: 0;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                text-overflow: ellipsis;
+                vertical-align: middle;
+                position: relative;
+                text-align: left;
+            }
 </style>

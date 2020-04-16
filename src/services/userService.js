@@ -23,10 +23,10 @@ export default {
         })
     },
 
-    // table编辑
-    handAdd:(obj = {}) => {
+    // table确定添加添加
+    handAdd:(url,obj = {}) => {
         return $http.ajax({
-            url: '/user/add',
+            url: url,
             method:'post',
             data:obj
         })
@@ -51,17 +51,48 @@ export default {
             }
         })
     },
-    // 分页
-    findPage:(obj = {}) => {
+
+    // 获取部门
+    getMenu:(url,obj = {}) => {
         return $http.ajax({
-            url: '/user/findPage',
+            url: url,
+            method:'get',
+            data:{
+                // id:obj.id
+                
+            }
+        })
+    },
+    //获取权限
+    getPomission:(url,obj = {}) => {
+        return $http.ajax({
+            url: url,
+            method:'get',
+            data:{
+                // id:obj.id
+                
+            }
+        })
+    },
+    //获取role
+    getRole:(obj = {}) => {
+        return $http.ajax({
+            url: '/role/findAll',
+            method:'get',
+            data:{
+                // id:obj.id
+                
+            }
+        })
+    },
+    // 分页
+    findPage:(url,obj = {}) => {
+        return $http.ajax({
+            url: url,
             method:'post',
             data:obj
         })
     },
-
-
-    
 
     //获取导航菜单
     getAuthName:(obj = {}) => {
@@ -80,6 +111,48 @@ export default {
             }
         })
     },
+    getById:(url,obj = {}) => {
+        return $http.ajax({
+            url: url,
+            method:'get',
+            data:obj
+        })
+    },
+
+    // 删除
+    _delete:(url,obj = {}) => {
+        return $http.ajax({
+            url: url,
+            method:'get',
+            data:obj
+        })
+    },
+
+    // 编辑
+    _edit:(url,obj = {}) => {
+        return $http.ajax({
+            url:url,
+            method:'get',
+            data:obj
+        })
+    },
+
+    _edit1:(url,obj = {}) => {
+        return $http.ajax({
+            url:url,
+            method:'post',
+            data:obj
+        })
+    },
+
+    // 获取数据
+    getList:(url,obj = {}) => {
+        return $http.ajax({
+            url:url,
+            method:'get',
+            data:obj
+        })
+    }
 
 
 

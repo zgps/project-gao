@@ -24,7 +24,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-            <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+            <el-button type="primary" icon="el-icon-plus"  size="mini" @click="handleAdd">新增</el-button>
           </el-form-item>
         </el-form>
 
@@ -123,7 +123,11 @@
   </div>
 </template>
 <script>
+import Treeselect from '@riophae/vue-treeselect'
+ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import userService from "@/services/userService";
 export default {
+  components: { Treeselect },
   name: "DeptManage",
   data() {
     return {
@@ -176,19 +180,28 @@ export default {
     this.getList();
   },
   methods: {
+    // TODO:  BEGIN
     /** 查询部门列表 */
     getList() {
-      // axios.get("/dept/getList").then(response => {
-      //     this.deptList = response.data.data;
-      //     this.loading = false;
-      // });
+      userService.getList("/dept/getList").then(res => {
+        this.deptList = res.data;
+        this.loading = false;
+      });
+     
     },
+
     /** 查询部门下拉树结构 */
     getTreeselect() {
+      userService.getDept("dept/treeSelect").then(res => {
+        this.deptOptions = res.data;
+      })
       // axios.get("dept/treeSelect").then(response => {
       //     this.deptOptions = response.data.data;
       // });
     },
+
+    // TODO:  END
+    
     // // 字典状态字典翻译
     // statusFormat(row, column) {
     //     return this.selectDictLabel(this.statusOptions, row.status);
@@ -320,4 +333,9 @@ export default {
 </script>
 <style lang="scss">
 @import "../../../scss/common";
+.app-container {
+  background-color:#fff;
+}
+  
+
 </style>
